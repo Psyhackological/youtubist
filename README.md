@@ -6,7 +6,7 @@
 <p align="center">
     Basically fork of yt-dlp python module to my needs. 
     <br>
-    You can paste URL or channel link  on the YouTube. 
+    You can paste playlist or channel link  on the YouTube. 
     <br>
     It will automatically format to special hyperlink format in Todoist [displayed_text](url). 
     <br>
