@@ -22,7 +22,7 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # SPECIAL YT-DLP OBJECT WITH YDL_OPTS (
     except yt_dlp.utils.DownloadError:  # SILLY YOU, THAT IS NOT A VALID
         quit()
 
-    with open('todoist.txt', 'w+t', encoding='utf-8') as f:  # CREATE A NEW FILE AND MAKE SURE HE IS CLEAN
+    with open('youtubist.txt', 'w+t', encoding='utf-8') as f:  # CREATE A NEW FILE AND MAKE SURE HE IS CLEAN
         f.seek(0)
         f.truncate()
 
@@ -53,7 +53,7 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # SPECIAL YT-DLP OBJECT WITH YDL_OPTS (
 
             else:
                 todoist = f'[{title}]({url})'  # SPECIAL FORMAT IN TODOIST
-                with open('todoist.txt', 'a+t', encoding='utf-8') as t:  # OPEN FILE AND APPEND
+                with open('youtubist.txt', 'a+t', encoding='utf-8') as t:  # OPEN FILE AND APPEND
                     t.write(todoist + "\n")  # WRITE EACH LINE
     else:
         print("Not a playlist")
