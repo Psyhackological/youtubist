@@ -141,5 +141,5 @@ cython_debug/
 # JetBrains .idea/
 .idea/
 
-# My file
-youtubist.txt
+# Txt files
+.txt
