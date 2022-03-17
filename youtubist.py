@@ -1,41 +1,42 @@
 import yt_dlp
+import argparse
 
-url = input("Playlist/channel URL: ")
-reverse = input("From newest to oldest? (Y/n): ")
-quiet = input("Waste time printing out? (Y/n): ")
-wants_duration = input("Do you want duration entry? (y/N): ")
+parser = argparse.ArgumentParser(prog="Youtubist")
+parser.add_argument(nargs='?', type=str, help="Playlist/channel URL. (str)", dest="url")
+parser.add_argument('-r', "--reverse", action="store_true", help="Downloads from oldest videos to the newest.")
+parser.add_argument('-d', "--duration", action="store_true", help="Adds duration entry to output file.")
+parser.add_argument('-q', "--quiet", action="store_true", help="Silence printing out.")
+args = parser.parse_args()
 
-reverse = True if 'n' in reverse.lower() else False
-quiet = True if 'n' in quiet.lower() else False
-wants_duration = True if 'y' in wants_duration.lower() else False
 
 ydl_opts = {  # YT-DLP OPTIONS
     'simulate': True,  # DO NOT DOWNLOAD VIDEOS OR AUDIO TO THE DISK
-    'quiet': quiet,  # DO NOT PRINT ANYTHING BE QUIET
-    'playlistreverse': reverse  # FROM LAST TO 1ST ITEM IF TRUE
+    'quiet': args.quiet,  # DO NOT PRINT ANYTHING BE QUIET
+    'playlistreverse': args.reverse  # FROM LAST TO 1ST ITEM IF TRUE
 }
 
 with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # SPECIAL YT-DLP OBJECT WITH YDL_OPTS (OPTIONS)
 
     try:
-        result = ydl.extract_info(url, download=False)  # WE WANT INFO WITHOUT DOWNLOADING THE VIDEO
+        result = ydl.extract_info(args.url, download=False)  # WE WANT INFO WITHOUT DOWNLOADING THE VIDEO
     except yt_dlp.utils.DownloadError:  # SILLY YOU, THAT IS NOT A VALID
         quit()
 
-    with open('youtubist.txt', 'w+t', encoding='utf-8') as f:  # CREATE A NEW FILE AND MAKE SURE HE IS CLEAN
+    file_name = f"{result['uploader'].replace(' ', '_')}.txt"
+    with open(file_name, 'w+t', encoding='utf-8') as f:  # CREATE A NEW FILE AND MAKE SURE HE IS CLEAN
         f.seek(0)
         f.truncate()
 
     if 'entries' in result:  # CAN BE A PLAYLIST OR A LIST OF VIDEOS
-        video = result['entries']  # GET ENTRIES FROM VIDEO
+        playlist = result['entries']  # GET ENTRIES FROM VIDEO
 
-        for i, item in enumerate(video):  # LOOPS ENTIRES TO GRAB EACH VIDEO URL
-            video = result['entries'][i]  # SINGLE VIDEO FROM ENUMARATE NUMBER
-            title = video['title']  # TITLE
-            url = f'https://youtu.be/{video["id"]}'  # SHORTEN LINK
+        for i, item in enumerate(playlist):  # LOOPS ENTRIES TO GRAB EACH VIDEO URL
+            single_video = result['entries'][i]  # SINGLE VIDEO FROM ENUMERATE NUMBER
+            title = single_video['title']  # TITLE
+            url = f'https://youtu.be/{single_video["id"]}'  # SHORTEN LINK
 
-            if wants_duration:
-                duration = video['duration']  # DURATION IS AN INT TYPE IN THE SECONDS
+            if args.duration:
+                duration = single_video['duration']  # DURATION IS AN INT TYPE IN THE SECONDS
                 minutes = (duration // 60) % 60
                 seconds = duration % 60
                 hours = duration // 3600
@@ -45,7 +46,7 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # SPECIAL YT-DLP OBJECT WITH YDL_OPTS (
                 if seconds < 10:  # FORCING SECONDS TO BE 2 CHARACTERS
                     seconds = f'0{seconds}'
 
-                with open('youtubist.txt', 'a+t', encoding='utf-8') as d:
+                with open(file_name, 'a+t', encoding='utf-8') as d:
                     if hours == 0:  # DO NOT WRITE HOURS
                         d.write(f'[{title}]({url}) | __{minutes}:{seconds}__\n')
                     else:  # DO WRITE HOURS
@@ -53,8 +54,8 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # SPECIAL YT-DLP OBJECT WITH YDL_OPTS (
 
             else:
                 todoist = f'[{title}]({url})'  # SPECIAL FORMAT IN TODOIST
-                with open('youtubist.txt', 'a+t', encoding='utf-8') as t:  # OPEN FILE AND APPEND
+                with open(file_name, 'a+t', encoding='utf-8') as t:  # OPEN FILE AND APPEND
                     t.write(todoist + "\n")  # WRITE EACH LINE
     else:
-        print("Not a playlist")
+        print("Not a playlist.")
         quit()
