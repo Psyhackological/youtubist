@@ -9,6 +9,22 @@ parser.add_argument('-q', "--quiet", action="store_true", help="Silence printing
 args = parser.parse_args()
 
 
+def seconds_to_time(seconds):
+    minutes = (seconds // 60) % 60
+    seconds = seconds % 60
+    hours = seconds // 3600
+
+    if minutes < 10:  # FORCING MINUTES TO BE 2 CHARACTERS
+        minutes = f'0{minutes}'
+    if seconds < 10:  # FORCING SECONDS TO BE 2 CHARACTERS
+        seconds = f'0{seconds}'
+
+    if hours == 0:  # DO NOT WRITE HOURS
+        return f'[{title}]({url}) | __{minutes}:{seconds}__\n'
+    else:  # DO WRITE HOURS
+        return f'[{title}]({url}) | __{hours}:{minutes}:{seconds}__\n'
+
+
 ydl_opts = {  # YT-DLP OPTIONS
     'simulate': True,  # DO NOT DOWNLOAD VIDEOS OR AUDIO TO THE DISK
     'quiet': args.quiet,  # DO NOT PRINT ANYTHING BE QUIET
@@ -23,9 +39,9 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # SPECIAL YT-DLP OBJECT WITH YDL_OPTS (
         quit()
 
     file_name = f"{result['uploader'].replace(' ', '_')}.txt"
-    with open(file_name, 'w+t', encoding='utf-8') as f:  # CREATE A NEW FILE AND MAKE SURE HE IS CLEAN
-        f.seek(0)
-        f.truncate()
+    with open(file_name, 'w+t', encoding='utf-8') as file:  # CREATE A NEW FILE AND MAKE SURE HE IS CLEAN
+        file.seek(0)
+        file.truncate()
 
     if 'entries' in result:  # CAN BE A PLAYLIST OR A LIST OF VIDEOS
         playlist = result['entries']  # GET ENTRIES FROM VIDEO
@@ -37,25 +53,13 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:  # SPECIAL YT-DLP OBJECT WITH YDL_OPTS (
 
             if args.duration:
                 duration = single_video['duration']  # DURATION IS AN INT TYPE IN THE SECONDS
-                minutes = (duration // 60) % 60
-                seconds = duration % 60
-                hours = duration // 3600
-
-                if minutes < 10:  # FORCING MINUTES TO BE 2 CHARACTERS
-                    minutes = f'0{minutes}'
-                if seconds < 10:  # FORCING SECONDS TO BE 2 CHARACTERS
-                    seconds = f'0{seconds}'
-
-                with open(file_name, 'a+t', encoding='utf-8') as d:
-                    if hours == 0:  # DO NOT WRITE HOURS
-                        d.write(f'[{title}]({url}) | __{minutes}:{seconds}__\n')
-                    else:  # DO WRITE HOURS
-                        d.write(f'[{title}]({url}) | __{hours}:{minutes}:{seconds}__\n')
-
+                entry_name = seconds_to_time(duration)
+                with open(file_name, 'a+t', encoding='utf-8') as file:
+                    file.write(entry_name)
             else:
-                todoist = f'[{title}]({url})'  # SPECIAL FORMAT IN TODOIST
-                with open(file_name, 'a+t', encoding='utf-8') as t:  # OPEN FILE AND APPEND
-                    t.write(todoist + "\n")  # WRITE EACH LINE
+                todoist = f'[{title}]({url})\n'  # SPECIAL FORMAT IN TODOIST
+                with open(file_name, 'a+t', encoding='utf-8') as file:  # OPEN FILE AND APPEND
+                    file.write(todoist)  # WRITE EACH LINE
     else:
         print("Not a playlist.")
         quit()
