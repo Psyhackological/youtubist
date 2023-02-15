@@ -143,3 +143,6 @@ cython_debug/
 
 # Txt files
 *.txt
+
+# Direcotry file
+.directory
