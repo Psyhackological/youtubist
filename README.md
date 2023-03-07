@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="20%" align="center" src="youtubist_plain.svg" alt="youtubist logo">
+  <img width="20%" align="center" src="img/youtubist_plain.svg" alt="youtubist logo">
 </p>
 <h1 align="center">Youtubist</h1>
 
