@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "youtubist"
+version = "2.1.0"
+description = "Fetch YouTube playlist or channel video information."
+authors = ["Psyhackological <konradkon@duck.com>"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+yt-dlp = "^2023.7.6"
+pyperclip = "^1.8.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+yt-info = 'youtubist:main'
