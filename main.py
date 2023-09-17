@@ -6,7 +6,7 @@ import yt_dlp
 from argparse_parsing import parse_arguments
 
 
-def fetch_youtube_playlist_info(playlist_url):
+def fetch_youtube_playlist_info(playlist_url, save_json):
     ydl_opts = {
         "extract_flat": True,
         "force_generic_extractor": True,
@@ -15,11 +15,11 @@ def fetch_youtube_playlist_info(playlist_url):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(playlist_url, download=False)
 
-        # Write the debug information to a JSON file
-        with open("debug_info.json", "w", encoding="utf-8") as json_file_handle:
-            json.dump(info_dict, json_file_handle, indent=4)
+        if save_json:
+            # Write the debug information to a JSON file
+            with open("debug_info.json", "w", encoding="utf-8") as json_file_handle:
+                json.dump(info_dict, json_file_handle, indent=4)
 
-        # Directly access the entries under "Videos", which is assumed to be the first entry
         videos_info = info_dict.get("entries", [{}])[0].get("entries", [])
 
     formatted_output = []
@@ -27,22 +27,24 @@ def fetch_youtube_playlist_info(playlist_url):
         title = video_info.get("title", "Unknown Title")
         url = video_info.get("id", "Unknown URL")
         duration = int(video_info.get("duration", 0))
-        duration_hms = (
-            f"{duration // 3600:02d}:{(duration % 3600) // 60:02d}:{duration % 60:02d}"
-        )
+        duration_hms = f"{duration // 3600:02d}:{(duration % 3600) // 60:02d}:{duration % 60:02d}"
         formatted_output.append(
-            f"[{title}](https://youtu.be/{url}) | {duration_hms}")
+            f"{duration_hms} | [{title}](https://youtu.be/{url})")
 
     return "\n".join(formatted_output)
 
 
 def main():
     args = parse_arguments()
-    formatted_info = fetch_youtube_playlist_info(args.url)
+    formatted_info = fetch_youtube_playlist_info(args.url, args.save_json)
     print("Formatted Video Information:")
     print(formatted_info)
     pyperclip.copy(formatted_info)
-    print("Formatted video information has been copied to clipboard.")
+
+    # Counting the number of entries
+    total_entries = formatted_info.count('\n') + 1
+    print("Formatted video information has been copied to clipboard. Total entries: {}".format(
+        total_entries))
 
 
 if __name__ == "__main__":
