@@ -19,22 +19,30 @@ def fetch_youtube_playlist_info(args):
             with open("debug_info.json", "w", encoding="utf-8") as json_file_handle:
                 json.dump(info_dict, json_file_handle, indent=4)
 
-        videos_info = info_dict.get("entries", [{}])[0].get("entries", [])
+        videos_info = info_dict.get("entries", [{}])[
+            int(args.video_type)].get("entries", [])
 
     formatted_output = []
     for video_info in videos_info:
         title = video_info.get("title", "Unknown Title")
         url = video_info.get("id", "Unknown URL")
-        duration = int(video_info.get("duration", 0))
-        duration_hms = f"{duration // 3600:02d}:{(duration % 3600) // 60:02d}:{duration % 60:02d}"
-        formatted_output.append(
-            (duration, f"{duration_hms} | [{title}](https://youtu.be/{url})"))
+
+        if args.video_type == '0':  # For Videos
+            duration = int(video_info.get("duration", 0))
+            duration_hms = f"{duration // 3600:02d}:{(duration % 3600) // 60:02d}:{duration % 60:02d}"
+            formatted_output.append(
+                (duration, f"{duration_hms} | [{title}](https://youtu.be/{url})"))
+        elif args.video_type == '1':  # For Shorts
+            formatted_output.append(
+                (None, f"[{title}](https://youtu.be/{url})"))
+        else:
+            print("No entries found for the given video type.")
 
     if args.reverse_order:
         formatted_output.reverse()
 
     if args.sort_by_duration:
-        formatted_output.sort(key=lambda x: x[0])
+        formatted_output.sort(key=lambda x: x[0] if x[0] is not None else 0)
 
     final_output = "\n".join(x[1] for x in formatted_output)
 
